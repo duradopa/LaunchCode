@@ -58,3 +58,9 @@ class LinkedCode(ControlSurface):
 		self.session = SessionComponent(SESSION_TRACKS, SESSION_SCENES)
 		self.session.name = "Session_Control"
 		self.session.set_mixer(self.mixer)
+		self.session._link()
+
+	def disconnect(self):
+		if self.session and self.session._is_linked():
+			self.session._unlink()
+		ControlSurface.disconnect(self)
