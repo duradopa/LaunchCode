@@ -4,12 +4,13 @@ from _Framework.ControlSurface import ControlSurface
 from _Framework.MixerComponent import MixerComponent
 from _Framework.SessionComponent import SessionComponent
 from _Framework.InputControlElement import *
+from _Framework.ButtonElement import ButtonElement
 from _Framework.EncoderElement import EncoderElement
 from _Framework.SliderElement import SliderElement
 
 CHAN = 0
 MIXER_TRACKS = 8
-MIXER_SELECT_NOTES = (38, 39, 40, 41, 42. 43, 44, 45)
+MIXER_SELECT_NOTES = (38, 39, 40, 41, 42, 43, 44, 45)
 MIXER_VOLUME_CCS = (4, 8, 12, 16, 20, 24, 28, 32)
 MIXER_PAN_CCS = (3, 7, 11, 15, 19, 23, 27, 31)
 MIXER_SEND_A_CCS = (2, 6, 10, 14, 18, 22, 26, 30)
@@ -22,7 +23,7 @@ FactoryReset = (0xf0, 0x00, 0x01, 0x61, 0x04, 0x06, 0xf7)
 # Button Channel Map - 45 buttons, map all to channel 0
 ButtonChannelMap = (0xf0, 0x00, 0x01, 0x61, 0x04, 0x13, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, 0xf7)
 # Encoder Channel Map - 32 encoders, map all to channel 0
-EncChannels = (0xf7, 0x00, 0x01, 0x61, 0x04, 0x14, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, 0xf7)
+EncoderChannelMap = (0xf0, 0x00, 0x01, 0x61, 0x04, 0x14, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, CHAN, 0xf7)
 
 class LinkedCode(ControlSurface):
 	def __init__(self, c_instance):
@@ -34,14 +35,13 @@ class LinkedCode(ControlSurface):
 		self._setup_transport_control()
 		self._setup_session_control()
 		self.set_suppress_rebuild_requests(False)
-		self.log_message("LinkedCode init done")
 
-	def _reset():
+	def _reset(self):
 		self._send_midi(FactoryReset)
 		self._send_midi(ButtonChannelMap)
 		self._send_midi(EncoderChannelMap)
 
-	def _setup_mixer_control():
+	def _setup_mixer_control(self):
 		# FIXME why is mixer a global?
 		global mixer
 		# MixerComponent(num_tracks, num_returns, ...)
@@ -51,11 +51,12 @@ class LinkedCode(ControlSurface):
 			mixer.channel_strip(i).set_select_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, MIXER_SELECT_NOTES[i]))
 			mixer.channel_strip(i).set_volume_control(SliderElement(MIDI_CC_TYPE, CHAN, MIXER_VOLUME_CCS[i]))
 			mixer.channel_strip(i).set_pan_control(EncoderElement(MIDI_CC_TYPE, CHAN, MIXER_PAN_CCS[i], Live.MidiMap.MapMode.absolute))
-			mixer.channel_strip(i).set_send_controls((EncoderElement(MIDI_CC_TYPE, CHAN, MIXER_SEND_A_CCS, Live.MidiMap.MapMode.absolute), EncoderElement(MIDI_CC_TYPE, CHAN, MIXER_SEND_B_CCS, Live.MidiMap.MapMode.absolute)))
+			mixer.channel_strip(i).set_send_controls(tuple([EncoderElement(MIDI_CC_TYPE, CHAN, MIXER_SEND_A_CCS[i], Live.MidiMap.MapMode.absolute), EncoderElement(MIDI_CC_TYPE, CHAN, MIXER_SEND_B_CCS[i], Live.MidiMap.MapMode.absolute)]))
 
-	def _setup_transport_control():
+	def _setup_transport_control(self):
+		self.log_message(__name__ + " unimplemented")
 
-	def _setup_session_control():
+	def _setup_session_control(self):
 		global session
 		session = SessionComponent(SESSION_TRACKS, SESSION_SCENES)
 		session.name = "Session_Control"
