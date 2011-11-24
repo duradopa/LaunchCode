@@ -8,15 +8,30 @@ from _Framework.ButtonElement import ButtonElement
 from _Framework.EncoderElement import EncoderElement
 from _Framework.SliderElement import SliderElement
 
+
 CHAN = 0
 MIXER_TRACKS = 8
-MIXER_SELECT_NOTES = (38, 39, 40, 41, 42, 43, 44, 45)
-MIXER_VOLUME_CCS = (4, 8, 12, 16, 20, 24, 28, 32)
-MIXER_PAN_CCS = (3, 7, 11, 15, 19, 23, 27, 31)
-MIXER_SEND_A_CCS = (2, 6, 10, 14, 18, 22, 26, 30)
-MIXER_SEND_B_CCS = (1, 5, 9, 13, 17, 21, 25, 29)
+# MIXER_SELECT_NOTES = (38, 39, 40, 41, 42, 43, 44, 45)
+# MIXER_VOLUME_CCS = (4, 8, 12, 16, 20, 24, 28, 32)
+# MIXER_PAN_CCS = (3, 7, 11, 15, 19, 23, 27, 31)
+# MIXER_SEND_A_CCS = (2, 6, 10, 14, 18, 22, 26, 30)
+# MIXER_SEND_B_CCS = (1, 5, 9, 13, 17, 21, 25, 29)
 SESSION_TRACKS = 8
-SESSION_SCENES = 1
+SESSION_SCENES = 8
+
+# new names - feel free to change. row1 is top, row 4 is bottom.
+BOTTOM_BUTTONS_NOTES = (38, 39, 40, 41, 42, 43, 44, 45)
+SIDE_BUTTONS_NOTES = (33, 34, 35, 36)
+SHIFT_BUTTON_NOTES = 37
+ROW1_ENCODERS_CCS = (1, 5, 9, 13, 17, 21, 25, 29)
+ROW2_ENCODERS_CCS = (2, 6, 10, 14, 18, 22, 26, 30)
+ROW3_ENCODERS_CCS = (3, 7, 11, 15, 19, 23, 27, 31)
+ROW4_ENCODERS_CCS = (4, 8, 12, 16, 20, 24, 28, 32)
+ROW1_BUTTON_NOTES = (1, 5, 9, 13, 17, 21, 25, 29)
+ROW2_BUTTON_NOTES = (2, 6, 10, 14, 18, 22, 26, 30)
+ROW3_BUTTON_NOTES = (3, 7, 11, 15, 19, 23, 27, 31)
+ROW4_BUTTON_NOTES = (4, 8, 12, 16, 20, 24, 28, 32)
+
 
 # Factory Reset
 FactoryReset = (0xf0, 0x00, 0x01, 0x61, 0x04, 0x06, 0xf7)
@@ -46,10 +61,14 @@ class LinkedCode(ControlSurface):
 		self.mixer = MixerComponent(MIXER_TRACKS, 0, with_eqs = True, with_filters = False)
 		self.mixer.set_track_offset(0)
 		for i in range(MIXER_TRACKS):
-			self.mixer.channel_strip(i).set_select_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, MIXER_SELECT_NOTES[i]))
-			self.mixer.channel_strip(i).set_volume_control(SliderElement(MIDI_CC_TYPE, CHAN, MIXER_VOLUME_CCS[i]))
-			self.mixer.channel_strip(i).set_pan_control(EncoderElement(MIDI_CC_TYPE, CHAN, MIXER_PAN_CCS[i], Live.MidiMap.MapMode.absolute))
-			self.mixer.channel_strip(i).set_send_controls(tuple([EncoderElement(MIDI_CC_TYPE, CHAN, MIXER_SEND_A_CCS[i], Live.MidiMap.MapMode.absolute), EncoderElement(MIDI_CC_TYPE, CHAN, MIXER_SEND_B_CCS[i], Live.MidiMap.MapMode.absolute)]))
+			# self.mixer.channel_strip(i).set_shift_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, SHIFT_BUTTON_NOTES)) # don't kwow what this does
+			self.mixer.channel_strip(i).set_mute_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, BOTTOM_BUTTONS_NOTES[i]))
+			self.mixer.channel_strip(i).set_select_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, ROW4_BUTTON_NOTES[i]))
+			self.mixer.channel_strip(i).set_arm_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, ROW3_BUTTON_NOTES[i]))
+			self.mixer.channel_strip(i).set_solo_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, ROW2_BUTTON_NOTES[i]))
+			self.mixer.channel_strip(i).set_volume_control(SliderElement(MIDI_CC_TYPE, CHAN, ROW4_ENCODERS_CCS[i]))
+			self.mixer.channel_strip(i).set_pan_control(EncoderElement(MIDI_CC_TYPE, CHAN, ROW3_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute))
+			self.mixer.channel_strip(i).set_send_controls(tuple([EncoderElement(MIDI_CC_TYPE, CHAN, ROW2_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute), EncoderElement(MIDI_CC_TYPE, CHAN, ROW1_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute)]))
 
 	def _setup_transport_control(self):
 		self.log_message(__name__ + " unimplemented")
