@@ -49,10 +49,10 @@ class LinkedCode(ControlSurface):
 		self._reset()
 		# turn off rebuild MIDI map until after setup
 		self.set_suppress_rebuild_requests(True)
-		self._setup_mode_selector_control()
 		self._setup_mixer_control()
 		self._setup_transport_control()
 		self._setup_session_control()
+		self._setup_mode_selector_control()
 		self.set_suppress_rebuild_requests(False)
 
 	def _reset(self):
@@ -68,16 +68,16 @@ class LinkedCode(ControlSurface):
 	def _setup_mode_selector_control(self):
 		self._create_mode_buttons()
 		self.mode_selector = FlexibleModeSelectorComponent(MODES)
-		self.mode_selector.set_mode_buttons(tuple(self.mode_buttons))
 		self.mode_selector.add_mode_index_listener(self._mode_changed)
+		self._mode_changed_callbacks = (self._set_mode_0, self._set_mode_1, self._set_mode_2, self._set_mode_3)
+		# call this last because setting the mode buttons sets the default mode
+		self.mode_selector.set_mode_buttons(tuple(self.mode_buttons))
 
 	def _mode_changed(self):
-		self.log_message("mode: " + str(self.mode_selector.mode_index))
+		self._mode_changed_callbacks[self.mode_selector.mode_index]()
 
-	def _setup_mixer_control(self):
-		# MixerComponent(num_tracks, num_returns, ...)
-		self.mixer = MixerComponent(MIXER_TRACKS, 0, with_eqs = True, with_filters = False)
-		self.mixer.set_track_offset(0)
+	def _set_mode_0(self):
+		self.log_message("mode 1")
 		for i in range(MIXER_TRACKS):
 			# self.mixer.channel_strip(i).set_shift_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, SHIFT_BUTTON_NOTES)) # don't kwow what this does, but when it's on, stuff doesn't work right
 			self.mixer.channel_strip(i).set_mute_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, BOTTOM_BUTTONS_NOTES[i]))
@@ -88,6 +88,20 @@ class LinkedCode(ControlSurface):
 			self.mixer.channel_strip(i).set_pan_control(EncoderElement(MIDI_CC_TYPE, CHAN, ROW3_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute))
 			self.mixer.channel_strip(i).set_send_controls(tuple([EncoderElement(MIDI_CC_TYPE, CHAN, ROW2_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute), EncoderElement(MIDI_CC_TYPE, CHAN, ROW1_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute)]))
 			self.mixer.channel_strip(i).set_invert_mute_feedback(True)
+
+	def _set_mode_1(self):
+		self.log_message("mode 2 unimplemented")
+
+	def _set_mode_2(self):
+		self.log_message("mode 3 unimplemented")
+
+	def _set_mode_3(self):
+		self.log_message("mode 4 unimplemented")
+
+	def _setup_mixer_control(self):
+		# MixerComponent(num_tracks, num_returns, ...)
+		self.mixer = MixerComponent(MIXER_TRACKS, 0, with_eqs = True, with_filters = False)
+		self.mixer.set_track_offset(0)
 
 	def _setup_transport_control(self):
 		self.log_message(__name__ + " unimplemented")
