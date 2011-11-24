@@ -8,6 +8,8 @@ from _Framework.ButtonElement import ButtonElement
 from _Framework.EncoderElement import EncoderElement
 from _Framework.SliderElement import SliderElement
 
+from FlexibleModeSelectorComponent import FlexibleModeSelectorComponent
+
 
 CHAN = 0
 MIXER_TRACKS = 8
@@ -18,6 +20,7 @@ MIXER_TRACKS = 8
 # MIXER_SEND_B_CCS = (1, 5, 9, 13, 17, 21, 25, 29)
 SESSION_TRACKS = 8
 SESSION_SCENES = 8
+MODES = 4
 
 # new names - feel free to change. row1 is top, row 4 is bottom.
 BOTTOM_BUTTONS_NOTES = (38, 39, 40, 41, 42, 43, 44, 45)
@@ -46,6 +49,7 @@ class LinkedCode(ControlSurface):
 		self._reset()
 		# turn off rebuild MIDI map until after setup
 		self.set_suppress_rebuild_requests(True)
+		self._setup_mode_selector_control()
 		self._setup_mixer_control()
 		self._setup_transport_control()
 		self._setup_session_control()
@@ -55,6 +59,20 @@ class LinkedCode(ControlSurface):
 		self._send_midi(FactoryReset)
 		self._send_midi(ButtonChannelMap)
 		self._send_midi(EncoderChannelMap)
+
+	def _create_mode_buttons(self):
+		self.mode_buttons = []
+		for i in range(MODES):
+			self.mode_buttons.append(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, SIDE_BUTTONS_NOTES[MODES-1-i]))
+
+	def _setup_mode_selector_control(self):
+		self._create_mode_buttons()
+		self.mode_selector = FlexibleModeSelectorComponent(MODES)
+		self.mode_selector.set_mode_buttons(tuple(self.mode_buttons))
+		self.mode_selector.add_mode_index_listener(self._mode_changed)
+
+	def _mode_changed(self):
+		self.log_message("mode: " + str(self.mode_selector.mode_index))
 
 	def _setup_mixer_control(self):
 		# MixerComponent(num_tracks, num_returns, ...)
