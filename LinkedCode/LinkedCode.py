@@ -61,7 +61,7 @@ class LinkedCode(ControlSurface):
 		self.mixer = MixerComponent(MIXER_TRACKS, 0, with_eqs = True, with_filters = False)
 		self.mixer.set_track_offset(0)
 		for i in range(MIXER_TRACKS):
-			# self.mixer.channel_strip(i).set_shift_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, SHIFT_BUTTON_NOTES)) # don't kwow what this does
+			# self.mixer.channel_strip(i).set_shift_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, SHIFT_BUTTON_NOTES)) # don't kwow what this does, but when it's on, stuff doesn't work right
 			self.mixer.channel_strip(i).set_mute_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, BOTTOM_BUTTONS_NOTES[i]))
 			self.mixer.channel_strip(i).set_select_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, ROW4_BUTTON_NOTES[i]))
 			self.mixer.channel_strip(i).set_arm_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, ROW3_BUTTON_NOTES[i]))
@@ -69,6 +69,7 @@ class LinkedCode(ControlSurface):
 			self.mixer.channel_strip(i).set_volume_control(SliderElement(MIDI_CC_TYPE, CHAN, ROW4_ENCODERS_CCS[i]))
 			self.mixer.channel_strip(i).set_pan_control(EncoderElement(MIDI_CC_TYPE, CHAN, ROW3_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute))
 			self.mixer.channel_strip(i).set_send_controls(tuple([EncoderElement(MIDI_CC_TYPE, CHAN, ROW2_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute), EncoderElement(MIDI_CC_TYPE, CHAN, ROW1_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute)]))
+			self.mixer.channel_strip(i).set_invert_mute_feedback(True)
 
 	def _setup_transport_control(self):
 		self.log_message(__name__ + " unimplemented")
@@ -79,6 +80,11 @@ class LinkedCode(ControlSurface):
 		self.session.set_mixer(self.mixer)
 		self.session._link()
 
+		stop_track_buttons = []
+		for i in range(SESSION_TRACKS):
+			stop_track_buttons.append(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, ROW1_BUTTON_NOTES[i]))
+		self.session.set_stop_track_clip_buttons(tuple(stop_track_buttons)) #array size needs to match num_tracks  
+		
 	def disconnect(self):
 		if self.session and self.session._is_linked():
 			self.session._unlink()
