@@ -13,11 +13,6 @@ from ModeSelectorComponent2 import ModeSelectorComponent2
 
 CHAN = 0
 MIXER_TRACKS = 8
-# MIXER_SELECT_NOTES = (38, 39, 40, 41, 42, 43, 44, 45)
-# MIXER_VOLUME_CCS = (4, 8, 12, 16, 20, 24, 28, 32)
-# MIXER_PAN_CCS = (3, 7, 11, 15, 19, 23, 27, 31)
-# MIXER_SEND_A_CCS = (2, 6, 10, 14, 18, 22, 26, 30)
-# MIXER_SEND_B_CCS = (1, 5, 9, 13, 17, 21, 25, 29)
 SESSION_TRACKS = 8
 SESSION_SCENES = 8
 MODES = 4
@@ -49,6 +44,8 @@ class LinkedCode(ControlSurface):
 		self._reset()
 		# turn off rebuild MIDI map until after setup
 		self.set_suppress_rebuild_requests(True)
+		self._create_buttons()
+		self._create_encoders()
 		self._setup_mixer_control()
 		self._setup_transport_control()
 		self._setup_session_control()
@@ -64,6 +61,20 @@ class LinkedCode(ControlSurface):
 		self.mode_buttons = []
 		for i in range(MODES):
 			self.mode_buttons.append(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, SIDE_BUTTONS_NOTES[MODES-1-i]))
+
+	def _create_buttons(self):
+		self._buttons = []
+		for row in (ROW1_BUTTON_NOTES, ROW2_BUTTON_NOTES, ROW3_BUTTON_NOTES, ROW4_BUTTON_NOTES, BOTTOM_BUTTONS_NOTES):
+			for n in row:
+				self._buttons.append(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, n))
+
+	def _create_encoders(self):
+		self._encoders = []
+		self._sliders = []
+		for row in (ROW1_ENCODERS_CCS, ROW2_ENCODERS_CCS, ROW3_ENCODERS_CCS, ROW4_ENCODERS_CCS):
+			for n in row:
+				self._encoders.append(EncoderElement(MIDI_CC_TYPE, CHAN, n, Live.MidiMap.MapMode.absolute))
+				self._sliders.append(SliderElement(MIDI_CC_TYPE, CHAN, n))
 
 	def _setup_mode_selector_control(self):
 		self._create_mode_buttons()
@@ -84,14 +95,13 @@ class LinkedCode(ControlSurface):
 	def _map_mode_0(self):
 		self.log_message("+ mode 1")
 		for i in range(MIXER_TRACKS):
-			# self.mixer.channel_strip(i).set_shift_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, SHIFT_BUTTON_NOTES)) # don't kwow what this does, but when it's on, stuff doesn't work right
-			self.mixer.channel_strip(i).set_mute_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, BOTTOM_BUTTONS_NOTES[i]))
-			self.mixer.channel_strip(i).set_select_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, ROW4_BUTTON_NOTES[i]))
-			self.mixer.channel_strip(i).set_arm_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, ROW3_BUTTON_NOTES[i]))
-			self.mixer.channel_strip(i).set_solo_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, ROW2_BUTTON_NOTES[i]))
-			self.mixer.channel_strip(i).set_volume_control(SliderElement(MIDI_CC_TYPE, CHAN, ROW4_ENCODERS_CCS[i]))
-			self.mixer.channel_strip(i).set_pan_control(EncoderElement(MIDI_CC_TYPE, CHAN, ROW3_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute))
-			self.mixer.channel_strip(i).set_send_controls(tuple([EncoderElement(MIDI_CC_TYPE, CHAN, ROW2_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute), EncoderElement(MIDI_CC_TYPE, CHAN, ROW1_ENCODERS_CCS[i], Live.MidiMap.MapMode.absolute)]))
+			self.mixer.channel_strip(i).set_mute_button(self._buttons[3 * 8 + i])
+			self.mixer.channel_strip(i).set_select_button(self._buttons[2 * 8 + i])
+			self.mixer.channel_strip(i).set_arm_button(self._buttons[8 + i])
+			self.mixer.channel_strip(i).set_solo_button(self._buttons[i])
+			self.mixer.channel_strip(i).set_volume_control(self._sliders[3 * 8 + i])
+			self.mixer.channel_strip(i).set_pan_control(self._encoders[2 * 8 + i])
+			self.mixer.channel_strip(i).set_send_controls((self._encoders[8 + i], self._encoders[i]))
 			self.mixer.channel_strip(i).set_invert_mute_feedback(True)
 
 	def _unmap_mode_0(self):
@@ -140,7 +150,7 @@ class LinkedCode(ControlSurface):
 
 		stop_track_buttons = []
 		for i in range(SESSION_TRACKS):
-			stop_track_buttons.append(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, ROW1_BUTTON_NOTES[i]))
+			stop_track_buttons.append(self._buttons[i])
 		self.session.set_stop_track_clip_buttons(tuple(stop_track_buttons)) #array size needs to match num_tracks  
 		
 	def disconnect(self):
