@@ -1,6 +1,6 @@
 from _Framework.ModeSelectorComponent import ModeSelectorComponent
 
-class FlexibleModeSelectorComponent(ModeSelectorComponent):
+class ModeSelectorComponent2(ModeSelectorComponent):
 	def __init__(self, num_modes):
 		ModeSelectorComponent.__init__(self)
 		self.num_modes = num_modes
