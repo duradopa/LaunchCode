@@ -68,6 +68,7 @@ class LinkedCode(ControlSurface):
 				self._buttons.append(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, n))
 
 	def _create_encoders(self):
+		self._dummy_encoder = EncoderElement(MIDI_CC_TYPE, CHAN, 0x7f, Live.MidiMap.MapMode.absolute)
 		self._encoders = []
 		self._sliders = []
 		for row in (ROW1_ENCODERS_CCS, ROW2_ENCODERS_CCS, ROW3_ENCODERS_CCS, ROW4_ENCODERS_CCS):
@@ -135,10 +136,16 @@ class LinkedCode(ControlSurface):
 			self.session.device(i).set_parameter_controls(())
 
 	def _map_mode_2(self):
-		self.log_message("mode 3 unimplemented")
+		self.log_message("+ mode 3")
+		self._map_session_buttons()
+		for i in range(SESSION_TRACKS):
+			self.session.device(i).set_parameter_controls((self._dummy_encoder, self._dummy_encoder, self._dummy_encoder, self._dummy_encoder, self._encoders[3 * 8 + i], self._encoders[2 * 8 + i], self._encoders[8 + i], self._encoders[i]))
 
 	def _unmap_mode_2(self):
-		self.log_message("mode 3 unimplemented")
+		self.log_message("- mode 3")
+		self._unmap_session_buttons()
+		for i in range(SESSION_TRACKS):
+			self.session.device(i).set_parameter_controls(())
 
 	def _map_mode_3(self):
 		self.log_message("mode 4 unimplemented")
