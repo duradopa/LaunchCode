@@ -91,37 +91,46 @@ class LinkedCode(ControlSurface):
 		self._map_mode_callbacks[self.mode_selector.mode_index]()
 		self._last_mode = self.mode_selector.mode_index
 
-	def _map_mode_0(self):
-		self.log_message("+ mode 1")
+	def _map_session_buttons(self):
 		for i in range(MIXER_TRACKS):
+			self.mixer.channel_strip(i).set_invert_mute_feedback(True)
 			self.mixer.channel_strip(i).set_mute_button(self._buttons[3 * 8 + i])
 			self.mixer.channel_strip(i).set_select_button(self._buttons[2 * 8 + i])
 			self.mixer.channel_strip(i).set_arm_button(self._buttons[8 + i])
 			self.mixer.channel_strip(i).set_solo_button(self._buttons[i])
-			self.mixer.channel_strip(i).set_volume_control(self._sliders[3 * 8 + i])
-			self.mixer.channel_strip(i).set_pan_control(self._encoders[2 * 8 + i])
-			self.mixer.channel_strip(i).set_send_controls((self._encoders[8 + i], self._encoders[i]))
-			self.mixer.channel_strip(i).set_invert_mute_feedback(True)
 
-	def _unmap_mode_0(self):
-		self.log_message("- mode 1")
+	def _unmap_session_buttons(self):
 		for i in range(MIXER_TRACKS):
-			# self.mixer.channel_strip(i).set_shift_button(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, SHIFT_BUTTON_NOTES)) # don't kwow what this does
 			self.mixer.channel_strip(i).set_mute_button(None)
 			self.mixer.channel_strip(i).set_select_button(None)
 			self.mixer.channel_strip(i).set_arm_button(None)
 			self.mixer.channel_strip(i).set_solo_button(None)
+
+	def _map_mode_0(self):
+		self.log_message("+ mode 1")
+		self._map_session_buttons()
+		for i in range(MIXER_TRACKS):
+			self.mixer.channel_strip(i).set_volume_control(self._sliders[3 * 8 + i])
+			self.mixer.channel_strip(i).set_pan_control(self._encoders[2 * 8 + i])
+			self.mixer.channel_strip(i).set_send_controls((self._encoders[8 + i], self._encoders[i]))
+
+	def _unmap_mode_0(self):
+		self.log_message("- mode 1")
+		self._unmap_session_buttons()
+		for i in range(MIXER_TRACKS):
 			self.mixer.channel_strip(i).set_volume_control(None)
 			self.mixer.channel_strip(i).set_pan_control(None)
 			self.mixer.channel_strip(i).set_send_controls(None)
 
 	def _map_mode_1(self):
 		self.log_message("+ mode 2")
+		self._map_session_buttons()
 		for i in range(SESSION_TRACKS):
 			self.session.device(i).set_parameter_controls((self._encoders[3 * 8 + i], self._encoders[2 * 8 + i], self._encoders[8 + i], self._encoders[i]))
 
 	def _unmap_mode_1(self):
 		self.log_message("- mode 2")
+		self._unmap_session_buttons()
 		for i in range(SESSION_TRACKS):
 			self.session.device(i).set_parameter_controls(())
 
