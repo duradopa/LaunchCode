@@ -94,10 +94,10 @@ class LinkedCode(ControlSurface):
 	def _map_session_buttons(self):
 		for i in range(MIXER_TRACKS):
 			self.mixer.channel_strip(i).set_invert_mute_feedback(True)
-			self.mixer.channel_strip(i).set_mute_button(self._buttons[3 * 8 + i])
-			self.mixer.channel_strip(i).set_select_button(self._buttons[2 * 8 + i])
-			self.mixer.channel_strip(i).set_arm_button(self._buttons[8 + i])
-			self.mixer.channel_strip(i).set_solo_button(self._buttons[i])
+			self.mixer.channel_strip(i).set_mute_button(self._buttons[4 * 8 + i])
+			self.mixer.channel_strip(i).set_select_button(self._buttons[3 * 8 + i])
+			self.mixer.channel_strip(i).set_arm_button(self._buttons[2 * 8 + i])
+			self.mixer.channel_strip(i).set_solo_button(self._buttons[8 + i])
 
 	def _unmap_session_buttons(self):
 		for i in range(MIXER_TRACKS):
