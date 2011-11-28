@@ -68,7 +68,9 @@ class LinkedCode(ControlSurface):
 				self._buttons.append(ButtonElement(True, MIDI_NOTE_TYPE, CHAN, n))
 
 	def _create_encoders(self):
-		self._dummy_encoder = EncoderElement(MIDI_CC_TYPE, CHAN, 0x7f, Live.MidiMap.MapMode.absolute)
+		# hack, placeholder control so we can get to arbitrary parameters
+		# in a device
+		self._dummy_encoder = EncoderElement(MIDI_CC_TYPE, CHAN + 1, 0x7f, Live.MidiMap.MapMode.absolute)
 		self._encoders = []
 		self._sliders = []
 		for row in (ROW1_ENCODERS_CCS, ROW2_ENCODERS_CCS, ROW3_ENCODERS_CCS, ROW4_ENCODERS_CCS):
@@ -87,9 +89,13 @@ class LinkedCode(ControlSurface):
 		self.mode_selector.set_mode_buttons(tuple(self.mode_buttons))
 
 	def _mode_changed(self):
+		if self.mode_selector.mode_index == 3:
+			self._unmap_session_buttons()
 		if self._last_mode != -1:
 			self._unmap_mode_callbacks[self._last_mode]()
 		self._map_mode_callbacks[self.mode_selector.mode_index]()
+		if self._last_mode == -1 or self._last_mode == 3:
+			self._map_session_buttons()
 		self._last_mode = self.mode_selector.mode_index
 
 	def _map_session_buttons(self):
@@ -109,7 +115,6 @@ class LinkedCode(ControlSurface):
 
 	def _map_mode_0(self):
 		self.log_message("+ mode 1")
-		self._map_session_buttons()
 		for i in range(MIXER_TRACKS):
 			self.mixer.channel_strip(i).set_volume_control(self._sliders[3 * 8 + i])
 			self.mixer.channel_strip(i).set_pan_control(self._encoders[2 * 8 + i])
@@ -117,7 +122,6 @@ class LinkedCode(ControlSurface):
 
 	def _unmap_mode_0(self):
 		self.log_message("- mode 1")
-		self._unmap_session_buttons()
 		for i in range(MIXER_TRACKS):
 			self.mixer.channel_strip(i).set_volume_control(None)
 			self.mixer.channel_strip(i).set_pan_control(None)
@@ -125,25 +129,21 @@ class LinkedCode(ControlSurface):
 
 	def _map_mode_1(self):
 		self.log_message("+ mode 2")
-		self._map_session_buttons()
 		for i in range(SESSION_TRACKS):
 			self.session.device(i).set_parameter_controls((self._encoders[3 * 8 + i], self._encoders[2 * 8 + i], self._encoders[8 + i], self._encoders[i]))
 
 	def _unmap_mode_1(self):
 		self.log_message("- mode 2")
-		self._unmap_session_buttons()
 		for i in range(SESSION_TRACKS):
 			self.session.device(i).set_parameter_controls(())
 
 	def _map_mode_2(self):
 		self.log_message("+ mode 3")
-		self._map_session_buttons()
 		for i in range(SESSION_TRACKS):
 			self.session.device(i).set_parameter_controls((self._dummy_encoder, self._dummy_encoder, self._dummy_encoder, self._dummy_encoder, self._encoders[3 * 8 + i], self._encoders[2 * 8 + i], self._encoders[8 + i], self._encoders[i]))
 
 	def _unmap_mode_2(self):
 		self.log_message("- mode 3")
-		self._unmap_session_buttons()
 		for i in range(SESSION_TRACKS):
 			self.session.device(i).set_parameter_controls(())
 
