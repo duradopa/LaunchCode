@@ -2,14 +2,13 @@ import Live
 
 from _Framework.ControlSurface import ControlSurface
 from _Framework.MixerComponent import MixerComponent
-from _Framework.SessionComponent import SessionComponent
 from _Framework.InputControlElement import *
 from _Framework.ButtonElement import ButtonElement
 from _Framework.EncoderElement import EncoderElement
 from _Framework.SliderElement import SliderElement
 
 from ModeSelectorComponent2 import ModeSelectorComponent2
-
+from SessionComponent2 import SessionComponent2
 
 CHAN = 0
 MIXER_TRACKS = 8
@@ -117,10 +116,14 @@ class LinkedCode(ControlSurface):
 			self.mixer.channel_strip(i).set_send_controls(None)
 
 	def _map_mode_1(self):
-		self.log_message("mode 2 unimplemented")
+		self.log_message("+ mode 2")
+		for i in range(SESSION_TRACKS):
+			self.session.device(i).set_parameter_controls((self._encoders[3 * 8 + i], self._encoders[2 * 8 + i], self._encoders[8 + i], self._encoders[i]))
 
 	def _unmap_mode_1(self):
-		self.log_message("mode 2 unimplemented")
+		self.log_message("- mode 2")
+		for i in range(SESSION_TRACKS):
+			self.session.device(i).set_parameter_controls(())
 
 	def _map_mode_2(self):
 		self.log_message("mode 3 unimplemented")
@@ -143,7 +146,7 @@ class LinkedCode(ControlSurface):
 		self.log_message(__name__ + " unimplemented")
 
 	def _setup_session_control(self):
-		self.session = SessionComponent(SESSION_TRACKS, SESSION_SCENES)
+		self.session = SessionComponent2(SESSION_TRACKS, SESSION_SCENES, self)
 		self.session.name = "Session_Control"
 		self.session.set_mixer(self.mixer)
 		self.session._link()
