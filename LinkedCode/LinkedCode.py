@@ -2,6 +2,7 @@ import Live
 
 from _Framework.ControlSurface import ControlSurface
 from _Framework.MixerComponent import MixerComponent
+from _Framework.TransportComponent import TransportComponent
 from _Framework.InputControlElement import *
 from _Framework.ButtonElement import ButtonElement
 from _Framework.EncoderElement import EncoderElement
@@ -12,6 +13,7 @@ from SessionComponent2 import SessionComponent2
 
 CHAN = 0
 MIXER_TRACKS = 8
+RETURN_TRACKS = 4
 SESSION_TRACKS = 8
 SESSION_SCENES = 8
 MODES = 4
@@ -148,18 +150,40 @@ class LinkedCode(ControlSurface):
 			self.session.device(i).set_parameter_controls(())
 
 	def _map_mode_3(self):
-		self.log_message("mode 4 unimplemented")
+		self.log_message("+ mode 4")
+		for i in range(RETURN_TRACKS):
+			self.mixer.return_strip(i).set_invert_mute_feedback(True)
+			self.mixer.return_strip(i).set_select_button(self._buttons[4 * 8 + i * 2])
+			self.mixer.return_strip(i).set_mute_button(self._buttons[3 * 8 + i * 2])
+		self.mixer.master_strip().set_select_button(self._buttons[4 * 8 + 6])
+		self.mixer.master_strip().set_volume_control(self._sliders[3 * 8 + 7])
+		self._transport.set_record_button(self._buttons[3 * 8 + 6])
+		self._transport.set_play_button(self._buttons[3 * 8 + 7])
+		self._transport.set_stop_button(self._buttons[2 * 8 + 7])
+		self._transport.set_nudge_buttons(self._buttons[8 + 7], self._buttons[8 + 6])
+		self._transport.set_tap_tempo_button(self._buttons[4 * 8 + 7])
+		self._transport.set_tempo_control(self._encoders[6], self._encoders[7])
 
 	def _unmap_mode_3(self):
-		self.log_message("mode 4 unimplemented")
+		self.log_message("- mode 4")
+		for i in range(RETURN_TRACKS):
+			self.mixer.return_strip(i).set_mute_button(None)
+		self._transport.master_strip().set_select_button(None)
+		self.mixer.master_strip().set_volume_control(None)
+		self._transport.set_record_button(None)
+		self._transport.set_play_button(None)
+		self._transport.set_stop_button(None)
+		self._transport.set_nudge_buttons(None, None)
+		self._transport.set_tap_tempo_button(None)
+		self._transport.set_tempo_control(None, None)
 
 	def _setup_mixer_control(self):
 		# MixerComponent(num_tracks, num_returns, ...)
-		self.mixer = MixerComponent(MIXER_TRACKS, 0, with_eqs = True, with_filters = False)
+		self.mixer = MixerComponent(MIXER_TRACKS, RETURN_TRACKS, with_eqs = True, with_filters = False)
 		self.mixer.set_track_offset(0)
 
 	def _setup_transport_control(self):
-		self.log_message(__name__ + " unimplemented")
+		self._transport = TransportComponent()
 
 	def _setup_session_control(self):
 		self.session = SessionComponent2(SESSION_TRACKS, SESSION_SCENES, self)
