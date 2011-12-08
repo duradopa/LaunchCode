@@ -1,12 +1,16 @@
 import Live
 
 from _Framework.ControlSurface import ControlSurface
+from _Framework.DeviceComponent import DeviceComponent
 from _Framework.MixerComponent import MixerComponent
 from _Framework.TransportComponent import TransportComponent
 from _Framework.InputControlElement import *
 from _Framework.ButtonElement import ButtonElement
 from _Framework.EncoderElement import EncoderElement
 from _Framework.SliderElement import SliderElement
+
+# XXX reuse this for now
+from Code.DetailViewCntrlComponent import DetailViewCntrlComponent
 
 from ModeSelectorComponent2 import ModeSelectorComponent2
 from SessionComponent2 import SessionComponent2
@@ -47,6 +51,7 @@ class LinkedCode(ControlSurface):
 		self.set_suppress_rebuild_requests(True)
 		self._create_buttons()
 		self._create_encoders()
+		self._create_device_components()
 		self._setup_mixer_control()
 		self._setup_transport_control()
 		self._setup_session_control()
@@ -79,6 +84,30 @@ class LinkedCode(ControlSurface):
 			for n in row:
 				self._encoders.append(EncoderElement(MIDI_CC_TYPE, CHAN, n, Live.MidiMap.MapMode.absolute))
 				self._sliders.append(SliderElement(MIDI_CC_TYPE, CHAN, n))
+
+	def _create_device_components(self):
+		self._create_return_devices()
+		self._create_selected_device()
+		self._create_device_view_controls()
+
+	def _create_return_devices(self):
+		self._device_returns = []
+		for track in self.song().return_tracks:
+			device = DeviceComponent()
+			try:
+				device.set_device(track.devices[0])
+			except:
+				self.log_message("no devices on return track")
+			self._device_returns.append(device)
+			if len(self._device_returns) == 2:
+				break
+
+	def _create_selected_device(self):
+		self._device_selected = DeviceComponent()
+		self.set_device_component(self._device_selected)
+
+	def _create_device_view_controls(self):
+		self._detail_view_control = DetailViewCntrlComponent()
 
 	def _setup_mode_selector_control(self):
 		self._create_mode_buttons()
@@ -151,10 +180,19 @@ class LinkedCode(ControlSurface):
 
 	def _map_mode_3(self):
 		self.log_message("+ mode 4")
+		for i in range(len(self._device_returns)):
+			self._device_returns[i].set_parameter_controls((self._encoders[3 * 8 + i * 2], self._encoders[2 * 8 + i * 2], self._encoders[8 + i * 2], self._encoders[i * 2], self._encoders[3 * 8 + i * 2 + 1], self._encoders[2 * 8 + i * 2 + 1], self._encoders[8 + i * 2 + 1], self._encoders[i * 2 + 1]))
+		self._device_selected.set_parameter_controls((self._encoders[3 * 8 + 2 * 2], self._encoders[2 * 8 + 2 * 2], self._encoders[8 + 2 * 2], self._encoders[2 * 2], self._encoders[3 * 8 + 2 * 2 + 1], self._encoders[2 * 8 + 2 * 2 + 1], self._encoders[8 + 2 * 2 + 1], self._encoders[2 * 2 + 1]))
+		self._device_selected.set_on_off_button(self._buttons[2 * 8 + 5])
+		self._detail_view_control.set_device_clip_toggle_button(self._buttons[4 * 8 + 4])
+		self._detail_view_control.set_detail_toggle_button(self._buttons[4 * 8 + 5])
+		self._detail_view_control.set_device_nav_buttons(self._buttons[3 * 8 + 4], self._buttons[3 * 8 + 5])
+		for i in range(3):
+			self.mixer.return_strip(i).set_volume_control(self._sliders[(3 - i) * 8 + 6])
 		for i in range(RETURN_TRACKS):
 			self.mixer.return_strip(i).set_invert_mute_feedback(True)
-			self.mixer.return_strip(i).set_select_button(self._buttons[4 * 8 + i * 2])
-			self.mixer.return_strip(i).set_mute_button(self._buttons[3 * 8 + i * 2])
+			self.mixer.return_strip(i).set_select_button(self._buttons[4 * 8 + i])
+			self.mixer.return_strip(i).set_mute_button(self._buttons[3 * 8 + i])
 		self.mixer.master_strip().set_select_button(self._buttons[4 * 8 + 6])
 		self.mixer.master_strip().set_volume_control(self._sliders[3 * 8 + 7])
 		self._transport.set_record_button(self._buttons[3 * 8 + 6])
@@ -166,9 +204,18 @@ class LinkedCode(ControlSurface):
 
 	def _unmap_mode_3(self):
 		self.log_message("- mode 4")
+		for i in range(len(self._device_returns)):
+			self._device_returns[i].set_parameter_controls(())
+		self._device_selected.set_parameter_controls(())
+		self._device_selected.set_on_off_button(None)
+		self._detail_view_control.set_device_clip_toggle_button(None)
+		self._detail_view_control.set_detail_toggle_button(None)
+		self._detail_view_control.set_device_nav_buttons(None, None)
+		for i in range(3):
+			self.mixer.return_strip(i).set_volume_control(None)
 		for i in range(RETURN_TRACKS):
 			self.mixer.return_strip(i).set_mute_button(None)
-		self._transport.master_strip().set_select_button(None)
+		self.mixer.master_strip().set_select_button(None)
 		self.mixer.master_strip().set_volume_control(None)
 		self._transport.set_record_button(None)
 		self._transport.set_play_button(None)
