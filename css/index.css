@@ -1,0 +1,49 @@
+body {
+	background-color: white;
+	font-size: 14px;
+	line-height: 22px;
+	font-family: Helvetica Neue, Helvetica, Arial;
+	margin: 20px 0 0;
+}
+
+h2 {
+	margin-top: 70px;
+}
+
+h3 {
+	margin-top: 50px;
+}
+
+code {
+	font-family: Monaco, Consolas, "Lucida Console", monospace;
+	font-size: 12px;
+	line-height: 18px;
+	font-style: normal;
+	padding: 0px 3px;
+	background: white;
+	border: 1px solid #ddd;
+	border-image: initial;
+}
+
+figure {
+	margin-top: 30px;
+}
+
+img {
+	display: block;
+	margin: 0 auto;
+	border: 1px solid #bbb;
+}
+
+figcaption {
+	font-style: italic;
+	text-align: center;
+}
+
+div.container {
+	background-color: #eee;
+	width: 750px;
+	margin-left: 200px;
+	padding: 40px 40px 50px 20px;
+	border-radius: 20px 20px 0 0
+}
