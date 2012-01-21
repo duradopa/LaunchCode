@@ -7,7 +7,7 @@
 	<body>
 		<div class="container">
 			<h1>LaunchCode</h1>
-			<p>LaunchCode is a set of python scripts which allows the Novation Launchpad and Livid Code controllers to work together in Ableton Live. The Launchpad and Code both use the same session box (the little yellow box in Live's session view), and both address the same eight tracks encompassed by the session box. The idea is to use the Launchpad to launch clips and scenes and the Code to control mixer and device parameters.</p>
+			<p>LaunchCode is a set of python scripts which allows the Novation Launchpad and Livid Code controllers to work together in Ableton Live. With LaunchCode the Launchpad and Code use the same session box (the little yellow box in Live's session view), and both address the same eight tracks encompassed by the session box. The idea is to use the Launchpad to launch clips and scenes and the Code to control mixer and device parameters.</p>
 			<p>You can report bugs and discuss features on the <a href="https://github.com/morethanreal/LaunchCode/issues">github issues page</a>, or send tweets to <a href="http://twitter.com/morethanreal">@morethanreal</a> or <a href="http://twitter.com/lukedahl">@lukedahl</a>.</p>
 			<figure>
 				<img src="images/Launchpad+Code.png"/>
@@ -16,7 +16,7 @@
 			<h2>How to install</h2>
 			<ol>
 				<li>Install the Code basic remote script from <a href="http://blog.lividinstruments.com/2011/04/20/controller-apps/">here</a>.
-				<li>Checkout the scripts from github <a href="https://github.com/morethanreal/LaunchCode">here</a> or <a href="https://github.com/morethanreal/LaunchCode/zipball/master">download the zip file</a>.
+				<li>Checkout the LaunchCode scripts from github <a href="https://github.com/morethanreal/LaunchCode">here</a> or <a href="https://github.com/morethanreal/LaunchCode/zipball/master">download the zip file</a>.
 				<li>Move the folders <code>LinkedCode</code> and <code>LinkedLaunchpad</code> into the <code>MIDIRemoteScripts</code> folder for Ableton Live. On OS X this will be somewhere like <code>/Applications/Live 8.2.6/Live.app/Contents/App-Resources/MIDI Remote Scripts</code>.
 				<li>Launch Ableton Live.
 				<li>Open Live's Preferences and go to the <code>MIDISync</code> tab.
@@ -28,14 +28,14 @@
 				<figcaption>Setting up LaunchCode in Live</figcaption>
 			</figure>
 			<h2>Using LaunchCode</h2>
-			<p>A single session box appears in Live’s session view, and shows which tracks are currently controlled by the Code and the Launchpad. The Launchpad will function the same as a the default factory functionality. The arrow buttons at the top of the Launchpad are used to move the session box.</p>
+			<p>A single session box appears in Live’s session view, and shows which tracks are currently controlled by the Code and the Launchpad. The Launchpad will function the same as its default factory settings. The arrow buttons at the top of the Launchpad are used to move the session box.</p>
 			<p>The Code has four modes, which are selected with the four buttons on the left of the Code. In the first three modes the eight columns of encoders and buttons are used to control the eight tracks in the session box. The fourth mode is used to control the master track, return tracks, and various transport controls.</p>
-			<p>The larger lower left button is the speed button. When this button is held the encoders operate at higher speed.</p>
+			<p>The large lower left button is the speed button. When this button is held the encoders operate at high speed.</p>
 			<h3>Mode 1</h3>
-			<p>Mode 1 is selected with the bottom left-side button, and controls mixer parameters for the tracks in the session box. Each column of encoders and buttons corresponds to one track. For each track:</p>
+			<p>Mode 1 is selected with the bottom left-side button, and controls mixer parameters for the tracks in the session box. Each column of encoder/buttons corresponds to one track. For each track:</p>
 			<ul>
-				<li>The bottom row of square buttons control muting and unmuting of tracks.
-				<li>The first (bottom) row of encoders control track volumes.
+				<li>The bottom row of square buttons allow muting and unmuting of tracks.
+				<li>The first (bottom) row of encoders controls track volumes.
 				<li>The next three rows of encoders control sends A, B, and C.
 				<li>The first row of buttons (used by pushing the encoder) selects the track.
 				<li>The second row of buttons arm tracks for recording.
@@ -56,9 +56,12 @@
 				<img src="images/LaunchCodeMode3.png"/>
 			</figure>
 			<h3>Mode 4</h3>
-			<p>Mode 4 does is not based on the session box. It is used to control various master track, return track, and transport controls.</p>
+			<p>Mode 4 is not based on the session box. It is used to control various master track, return track, and transport controls.</p>
 			<ul>
-				<li>The first four square buttons along the bottom of the Code are used to select returns A through D. The next two buttons select the clip view and open the detail view. The seventh button is ‘tap tempo’, and the last button selects the master track.
+				<li>The first four square buttons along the bottom of the Code are used to select returns A through D. 
+				<li>The next two buttons select the clip view and open the detail view. 
+				<li>The seventh button is tap tempo.
+				<li>The last button on the right selects the master track.
 				<li>The first four buttons on the bottom row of knobs are used to mute/unmute returns A through D.
 				<li>The first eight encoders on the left (see diagram below) control the first eight parameters of the first device on return A, and the second eight encoders control the first eight parameters of the first device on return B. The idea is to use returns A and B for the effects you wish to change most frequently.
 				<li>The third set of eight encoders are used to control the parameters of whatever device is currently selected. This is useful for changing parameters on the master track or other return tracks. The bottom two buttons in this zone allow you to select the previous or next device in a chain, and right button in the next row turns devices on/ off.
